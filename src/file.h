@@ -35,6 +35,9 @@ extern "C" {
 
 #include "common.h"
 
+// Callback types for streaming I/O (used by WASM build)
+typedef size_t (*ReadCallback)(off_t offset, uchar* buffer, size_t size);
+
 class FileRead {
 public:
 	FileRead(const std::string& filename);
@@ -61,11 +64,21 @@ public:
 	const uchar* getPtr2(int size_requested);  // changes state (buf_off_)
 	const uchar* getPtrAt(off_t pos, int size_requested);
 	const uchar* getFragment(off_t pos, int size);
+#ifdef __EMSCRIPTEN__
+	ssize_t buf_size_ = 128*(1<<20); // 128 MB for WASM - larger = fewer slice() calls
+#else
 	ssize_t buf_size_ = 15*(1<<20); // 15 MB
+#endif
 
 	std::string filename_;
 
 	static bool alreadyExists(const std::string& fn);
+	
+	// Streaming read callback (set by WASM for streaming input from JS)
+	static ReadCallback s_read_callback;
+	static off_t s_read_file_size;
+	
+	bool isStreaming() const { return use_streaming_; }
 
 protected:
 	size_t fillBuffer(off_t location);
@@ -74,10 +87,14 @@ protected:
 	FILE* file_ = nullptr;
 	off_t buf_begin_ = 0;
 	off_t buf_off_ = 0;
+	bool use_streaming_ = false;
 
 private:
 	static bool isRegularFile(int fd);
 };
+
+// Callback type for streaming writes (used by WASM build)
+typedef void (*WriteCallback)(const uchar* data, size_t size);
 
 class FileWrite {
 public:
@@ -94,9 +111,22 @@ public:
 
 	void copyRange(FileRead& fin, size_t a, size_t b);
 	void copyN(FileRead& fin, size_t start_off, size_t n);
+	
+	void flush();  // Flush streaming buffer
+
+	// Global streaming callback (set by WASM for streaming output)
+	static WriteCallback s_write_callback;
+	static off_t s_stream_pos;
+	
+	// Streaming buffer (32MB) - larger to reduce callback frequency
+	static const size_t STREAM_BUFFER_SIZE = 32 * 1024 * 1024;
+	static std::vector<uchar> s_stream_buffer;
 
 protected:
 	FILE *file_;
+	bool use_streaming_;
+	
+	void bufferWrite(const uchar* data, size_t size);
 };
 
 bool isdir(const std::string& path);

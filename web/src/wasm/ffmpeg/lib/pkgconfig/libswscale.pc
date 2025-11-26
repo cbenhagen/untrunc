@@ -1,0 +1,14 @@
+prefix=/Users/ben/development/untrunc/web/src/wasm/ffmpeg
+exec_prefix=${prefix}
+libdir=/Users/ben/development/untrunc/web/src/wasm/ffmpeg/lib
+includedir=/Users/ben/development/untrunc/web/src/wasm/ffmpeg/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 8.3.100
+Requires: libavutil >= 59.39.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswscale -lm
+Libs.private: 
+Cflags: -I${includedir}

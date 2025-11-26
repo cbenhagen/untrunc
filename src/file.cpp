@@ -32,31 +32,47 @@
 
 using namespace std;
 
+// Static members for streaming reads
+ReadCallback FileRead::s_read_callback = nullptr;
+off_t FileRead::s_read_file_size = 0;
+
 FileRead::FileRead(const string& filename) {
 	open(filename);
 }
 
 FileRead::~FileRead() {
-	if(file_){
-		fclose(file_);
-		free(buffer_);
-	}
+	if(buffer_) free(buffer_);
+	if(file_) fclose(file_);
 }
 
 void FileRead::open(const string& filename) {
 	filename_ = filename;
-	file_ = my_open(filename.c_str(), "rb");
+	
+	// Check if streaming mode is enabled for this file
+	use_streaming_ = (s_read_callback != nullptr && s_read_file_size > 0);
+	
+	if (use_streaming_) {
+		// Streaming mode - use JS callback for reads
+		file_ = nullptr;
+		size_ = s_read_file_size;
+		buffer_ = (uchar*) malloc(buf_size_);
+		// Fill initial buffer
+		size_t read = s_read_callback(0, buffer_, buf_size_);
+		(void)read;  // Suppress unused warning
+	} else {
+		// Normal file mode
+		file_ = my_open(filename.c_str(), "rb");
+		if (!file_) throw("Could not open file '" + filename + "': " + strerror(errno));
 
-	if (!file_) throw("Could not open file '" + filename + "': " + strerror(errno));
+		fseeko(file_, 0L, SEEK_END);
+		size_ = ftello(file_);
+		fseeko(file_, 0L, SEEK_SET);
 
-	fseeko(file_, 0L, SEEK_END);
-	size_ = ftello(file_);
-	fseeko(file_, 0L, SEEK_SET);
+		if (!isRegularFile(fileno(file_))) throw("not a regular file: " + filename);
 
-	if (!isRegularFile(fileno(file_))) throw("not a regular file: " + filename);
-
-	buffer_ = (uchar*) malloc(buf_size_);
-	fread(buffer_, 1, buf_size_, file_);
+		buffer_ = (uchar*) malloc(buf_size_);
+		fread(buffer_, 1, buf_size_, file_);
+	}
 }
 
 void FileRead::seek(off_t p) {
@@ -84,15 +100,27 @@ size_t FileRead::fillBuffer(off_t location) {
 
 	buf_begin_ = location;
 	buf_off_ = 0;
-	if (avail < 0 || avail >= buf_size_) {
-		fseeko(file_, location, SEEK_SET);
-		int n = fread(buffer_, 1, buf_size_, file_);
+	
+	if (use_streaming_ && s_read_callback) {
+		// Streaming mode - read via JS callback
+		if (avail < 0 || avail >= buf_size_) {
+			return s_read_callback(location, buffer_, buf_size_);
+		} else if (avail > 0) {
+			memmove(buffer_, buffer_+buf_loc, buf_size_-buf_loc);
+		}
+		return s_read_callback(location + avail, buffer_+avail, buf_size_-avail);
+	} else {
+		// Normal file mode
+		if (avail < 0 || avail >= buf_size_) {
+			fseeko(file_, location, SEEK_SET);
+			int n = fread(buffer_, 1, buf_size_, file_);
+			return n;
+		} else if (avail > 0) {
+			memmove(buffer_, buffer_+buf_loc, buf_size_-buf_loc);
+		}
+		int n = fread(buffer_+avail, 1, buf_size_-avail, file_);
 		return n;
-	}else if (avail > 0) {
-		memmove(buffer_, buffer_+buf_loc, buf_size_-buf_loc);
 	}
-	int n = fread(buffer_+avail, 1, buf_size_-avail, file_);
-	return n;
 }
 
 size_t FileRead::readBuffer(uchar* dest, size_t size, size_t n) {
@@ -206,56 +234,131 @@ bool FileRead::alreadyExists(const string& fn) {
 }
 
 
+// Static members for streaming
+WriteCallback FileWrite::s_write_callback = nullptr;
+off_t FileWrite::s_stream_pos = 0;
+std::vector<uchar> FileWrite::s_stream_buffer;
+
+// Buffer data and flush when full
+void FileWrite::bufferWrite(const uchar* data, size_t size) {
+	// Reserve buffer on first use
+	if (s_stream_buffer.capacity() < STREAM_BUFFER_SIZE) {
+		s_stream_buffer.reserve(STREAM_BUFFER_SIZE);
+	}
+	
+	size_t offset = 0;
+	while (offset < size) {
+		size_t space = STREAM_BUFFER_SIZE - s_stream_buffer.size();
+		size_t to_copy = min(space, size - offset);
+		
+		s_stream_buffer.insert(s_stream_buffer.end(), data + offset, data + offset + to_copy);
+		offset += to_copy;
+		
+		// Flush when buffer is full
+		if (s_stream_buffer.size() >= STREAM_BUFFER_SIZE) {
+			flush();
+		}
+	}
+	s_stream_pos += size;
+}
+
+void FileWrite::flush() {
+	if (use_streaming_ && s_write_callback && !s_stream_buffer.empty()) {
+		s_write_callback(s_stream_buffer.data(), s_stream_buffer.size());
+		s_stream_buffer.clear();
+	}
+}
+
 FileWrite::FileWrite(const string& filename) {
-	file_ = my_open(filename.c_str(), "wb");
-	if(!file_)
-		throw "Could not create file '" + filename + "': " + strerror(errno);
+	use_streaming_ = (s_write_callback != nullptr);
+	
+	if (use_streaming_) {
+		file_ = nullptr;
+		s_stream_pos = 0;
+		s_stream_buffer.clear();
+	} else {
+		file_ = my_open(filename.c_str(), "wb");
+		if(!file_)
+			throw "Could not create file '" + filename + "': " + strerror(errno);
+	}
 }
 
 FileWrite::~FileWrite() {
+	if (use_streaming_) {
+		flush();  // Flush any remaining data
+	}
 	if(file_) fclose(file_);
 }
 
 off_t FileWrite::pos() {
+	if (use_streaming_) return s_stream_pos;
 	return ftello(file_);
 }
 
 int FileWrite::writeInt(int n) {
 	n = swap32(n);
-	fwrite(&n, sizeof(int), 1, file_);
+	if (use_streaming_) {
+		bufferWrite((const uchar*)&n, sizeof(int));
+	} else {
+		fwrite(&n, sizeof(int), 1, file_);
+	}
 	return 4;
 }
 
 int FileWrite::writeInt64(int64_t n) {
 	n = swap64(n);
-	fwrite(&n, sizeof(n), 1, file_);
+	if (use_streaming_) {
+		bufferWrite((const uchar*)&n, sizeof(n));
+	} else {
+		fwrite(&n, sizeof(n), 1, file_);
+	}
 	return 8;
 }
 
 int FileWrite::writeChar(const char *source, size_t n) {
-	fwrite(source, 1, n, file_);
+	if (use_streaming_) {
+		bufferWrite((const uchar*)source, n);
+	} else {
+		fwrite(source, 1, n, file_);
+	}
 	return n;
 }
 
 int FileWrite::writeChar(const uchar *source, size_t n) {
-	fwrite(source, 1, n, file_);
+	if (use_streaming_) {
+		bufferWrite(source, n);
+	} else {
+		fwrite(source, 1, n, file_);
+	}
 	return n;
 }
 
 int FileWrite::write(vector<uchar> &v) {
-	fwrite(&*v.begin(), 1, v.size(), file_);
+	if (use_streaming_) {
+		bufferWrite(&*v.begin(), v.size());
+	} else {
+		fwrite(&*v.begin(), 1, v.size(), file_);
+	}
 	return v.size();
 }
 
 void FileWrite::copyRange(FileRead& fin, size_t a, size_t b) {
 	fin.seek(a);
 	size_t n = b - a;
-	size_t buff_sz = 1<<16;
+#ifdef __EMSCRIPTEN__
+	size_t buff_sz = 4*(1<<20);  // 4MB chunks for WASM (reduce overhead)
+#else
+	size_t buff_sz = 1<<16;  // 64KB for native
+#endif
 	while (n) {
-		cout << n << string(15, ' ') << '\r';
+		if (!use_streaming_) cout << n << string(15, ' ') << '\r';
 		auto to_read = min(buff_sz, n);
 		auto p = fin.getPtr2(to_read);
-		assert(to_read == fwrite(p, 1, to_read, file_));
+		if (use_streaming_) {
+			bufferWrite(p, to_read);
+		} else {
+			assert(to_read == fwrite(p, 1, to_read, file_));
+		}
 		n -= to_read;
 	}
 }
