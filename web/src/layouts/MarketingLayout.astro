@@ -1,0 +1,33 @@
+---
+import '../styles/globals.css';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Recover footage from corrupted Sony .rsv files. Free browser tool — your files never leave your computer.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark overflow-x-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script defer src="/scripts/intercom-consent.js"></script>
+  </head>
+  <body class="antialiased dark overflow-x-hidden flex min-h-screen flex-col bg-black text-[#ededed]">
+    <SiteNav />
+    <slot />
+    <SiteFooter />
+  </body>
+</html>

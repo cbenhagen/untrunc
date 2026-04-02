@@ -2,34 +2,52 @@
   "name": "untrunc-web",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "bun@1.3.10",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "build:wasm": "cd src/wasm && ./build.sh"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "build:wasm": "cd src/wasm && ./build.sh",
+    "lint": "eslint ."
+  },
+  "overrides": {
+    "zod": "3.25.76",
+    "@astrojs/sitemap": "3.7.0"
   },
   "dependencies": {
+    "@astrojs/sitemap": "3.7.0",
+    "@astrojs/starlight": "^0.37.6",
+    "@astrojs/tailwind": "^6.0.2",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "astro": "^5.18.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "comlink": "^4.4.2",
     "framer-motion": "^12.23.24",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "starlight-theme-black": "^0.6.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@astrojs/react": "^4.4.2",
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.27",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "postcss": "^8.5.6",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "typescript-eslint": "^8.46.4"
   }
 }

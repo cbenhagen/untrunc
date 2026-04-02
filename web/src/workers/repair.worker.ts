@@ -285,7 +285,7 @@ async function repair(
   try { mod.FS.mkdir('/broken') } catch {}
 
   sendLog(`Info: Reference: ${refFile.name} (${formatBytes(refFile.size)})`)
-  sendLog(`Info: Broken: ${brokenFile.name} (${formatBytes(brokenFile.size)})`)
+  sendLog(`Info: .rsv: ${brokenFile.name} (${formatBytes(brokenFile.size)})`)
   
   // Reset phase tracking and set expected output size for progress calculation
   // Output size is approximately the broken file size (might be slightly different)
@@ -299,17 +299,17 @@ async function repair(
   mod.FS.mount(mod.FS.filesystems.WORKERFS, { files: [brokenFile] }, '/broken')
 
   sendProgress(100) // 100% of mounting phase = 5% overall
-  sendLog('Info: Starting repair...')
+  sendLog('Info: Starting…')
   
   let result: RepairResult
   try {
     result = mod.repair(`/ref/${refFile.name}`, `/broken/${brokenFile.name}`, '/tmp', settings)
   } catch (e) {
     const error = e instanceof Error ? e.message : String(e)
-    sendLog(`Error: Repair crashed: ${error}`)
+    sendLog(`Error: ${error}`)
     sendLog(`Error: This typically happens when the browser loses access to the file after extended time.`)
     sendLog(`Error: Written so far: ${formatBytes(bytesWritten)}`)
-    sendLog(`Error: For large files, use the CLI: ./untrunc reference.mp4 broken.rsv`)
+    sendLog(`Error: For large .rsv files, use the command-line tool with your reference clip and .rsv file.`)
     throw e
   }
 
@@ -345,7 +345,7 @@ async function repair(
   }
 
   if (!result.success) {
-    throw new Error(result.error || 'Repair failed')
+    throw new Error(result.error || 'Recovery failed')
   }
 
   mod.cleanup()

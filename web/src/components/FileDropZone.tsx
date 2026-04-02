@@ -169,13 +169,13 @@ export default function FileDropZone({
           content: '';
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at center, var(--cyan-glow) 0%, transparent 70%);
+          background: radial-gradient(circle at center, var(--highlight-glow) 0%, transparent 70%);
           opacity: 0;
           transition: opacity var(--transition-base);
         }
 
         .dropzone:hover:not(.disabled) {
-          border-color: var(--cyan-600);
+          border-color: var(--highlight-border);
           background: var(--bg-tertiary);
         }
 
@@ -184,7 +184,7 @@ export default function FileDropZone({
         }
 
         .dropzone.dragging {
-          border-color: var(--cyan-400);
+          border-color: var(--text-secondary);
           border-style: solid;
           background: var(--bg-tertiary);
         }
@@ -194,12 +194,12 @@ export default function FileDropZone({
         }
 
         .dropzone.has-file {
-          border-color: var(--green-500);
+          border-color: var(--text-secondary);
           border-style: solid;
         }
 
         .dropzone.has-file::before {
-          background: radial-gradient(circle at center, var(--green-glow) 0%, transparent 70%);
+          background: radial-gradient(circle at center, var(--highlight-glow) 0%, transparent 70%);
           opacity: 1;
         }
 
@@ -221,7 +221,7 @@ export default function FileDropZone({
         .drop-icon {
           width: 48px;
           height: 48px;
-          color: var(--cyan-400);
+          color: var(--text-secondary);
           margin-bottom: var(--space-2);
         }
 
@@ -266,7 +266,7 @@ export default function FileDropZone({
         .file-icon-wrapper svg {
           width: 100%;
           height: 100%;
-          color: var(--green-400);
+          color: var(--text-primary);
         }
 
         .file-check {
@@ -275,7 +275,7 @@ export default function FileDropZone({
           right: -4px;
           width: 20px;
           height: 20px;
-          background: var(--green-500);
+          background: var(--text-secondary);
           border-radius: 50%;
           display: flex;
           align-items: center;

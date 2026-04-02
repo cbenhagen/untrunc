@@ -1,125 +1,77 @@
-# Untrunc Web
+# rsv.repair (web)
 
-A stunning web interface for [Untrunc](https://github.com/anthwlock/untrunc) - repair corrupted MP4, MOV, and M4V video files directly in your browser using WebAssembly.
+Web interface for **rsv.repair**: it fixes Sony `.rsv` files in the browser using WebAssembly. Includes **Astro** marketing pages, **Starlight** docs (Markdown lives in `src/content/docs/docs/` so URLs are `/docs/…`, matching the ALEx landing setup), and the **React** repair tool at `/`.
 
 ## Features
 
-- **100% Client-Side**: All processing happens in your browser - no file uploads to any server
-- **Large File Support**: Streaming file processing handles videos of any size
-- **Modern UI**: Beautiful dark theme with smooth animations
-- **Advanced Settings**: Full access to untrunc's repair options
-- **Real-time Progress**: Live logging and progress updates during repair
-- **RSV Support**: Recover Sony RSV files from interrupted recordings
+- **100% client-side repair**: Processing stays in your browser; no file uploads to a server
+- **Large file support**: Streaming / worker-based handling for big videos
+- **Docs & support**: Starlight documentation and a support page (same general style as our other product sites)
+- **RSV-focused**: Built around interrupted Sony `.rsv` recordings and a same-camera reference clip
 
-## Quick Start
+## Quick start
 
-### Development Mode
+### Development
 
 ```bash
-# Install dependencies
-npm install
+# Install dependencies (use Bun; do not use npm for this project)
+bun install
 
-# Start development server
-npm run dev
+# Dev server (Astro)
+bun run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The site defaults to `http://localhost:4321` (Astro). The repair tool is at `/`; documentation is at `/docs/`; support at `/support/`.
 
-### Building the WASM Module
+### Build WASM (repair engine)
 
-The build script automatically compiles FFmpeg 7.1 and Untrunc to WebAssembly.
-
-**Prerequisites:**
-- Emscripten SDK (install via `brew install emscripten` on macOS)
+**Prerequisites:** Emscripten (e.g. `brew install emscripten` on macOS)
 
 ```bash
-# Build the WASM module
 cd web/src/wasm
 ./build.sh
 ```
 
-The build script will:
-1. Download and compile FFmpeg 7.1 for WebAssembly (~5 minutes)
-2. Compile Untrunc with Emscripten
-3. Output `untrunc.js` (91KB) and `untrunc.wasm` (1.8MB) to `public/`
+Outputs `untrunc.js` and `untrunc.wasm` into `public/`.
 
-### Production Build
+### Production build
 
 ```bash
-npm run build
-npm run preview
+bun run build
+bun run preview
 ```
 
-## Project Structure
+Dependency versions follow the **ALEx** landing app (`astro` 5.18, `@astrojs/starlight` 0.37.x). `package.json` uses **`overrides`** so `zod` stays on **3.25.76** and `@astrojs/sitemap` on **3.7.0**. Newer `@astrojs/sitemap` pulls Zod 4, which breaks Starlight’s content schema unless the tree is deduped (see `bun.lock` after `bun install`).
+
+## Project structure (high level)
 
 ```
 web/
 ├── src/
-│   ├── components/         # React UI components
-│   │   ├── FileDropZone.tsx    # Drag-and-drop file upload
-│   │   ├── RepairProgress.tsx  # Progress visualization
-│   │   ├── SettingsPanel.tsx   # Advanced settings
-│   │   ├── LogOutput.tsx       # Real-time log display
-│   │   ├── Header.tsx          # App header
-│   │   └── ErrorBoundary.tsx   # Error handling
-│   ├── hooks/              # React hooks
-│   │   ├── useUntrunc.ts       # Main repair hook
-│   │   └── useFileStream.ts    # Streaming file utilities
-│   ├── workers/            # Web Workers
-│   │   └── repair.worker.ts    # Background repair process
-│   ├── wasm/               # WASM build files
-│   │   ├── untrunc_wasm.cpp    # C++/JS bindings
-│   │   ├── CMakeLists.txt      # Build configuration
-│   │   └── build.sh            # Build script
-│   ├── lib/                # Utility libraries
-│   │   └── ffmpeg-types.ts     # FFmpeg type definitions
-│   ├── App.tsx             # Main application
-│   ├── main.tsx            # Entry point
-│   └── index.css           # Global styles
-└── public/
-    ├── untrunc.js          # WASM loader (after build)
-    ├── untrunc.wasm        # WASM binary (after build)
-    └── favicon.svg
+│   ├── pages/           # Astro routes (index, support)
+│   ├── layouts/         # App shell + marketing layout
+│   ├── components/      # React UI + Astro partials (nav, footer)
+│   ├── content/docs/    # Starlight markdown docs
+│   ├── hooks/, workers/, wasm/, …
+│   ├── App.tsx
+│   └── index.css
+├── public/              # Static assets + WASM after build
+├── astro.config.mjs
+└── package.json
 ```
 
-## How It Works
+## Stack
 
-1. **File Selection**: Users drag-and-drop or browse to select:
-   - A **reference video**: A working video from the same camera
-   - A **broken video**: The corrupted file to repair
+- **Astro** + **React** (`client:only` for the WASM app)
+- **Starlight** + **starlight-theme-black** for documentation
+- **Tailwind CSS** for marketing/docs styling
+- **Framer Motion**, **Web Workers**, **Emscripten** / **FFmpeg** (WASM)
 
-2. **Processing**: When repair starts:
-   - Files are loaded into browser memory
-   - A Web Worker initializes the WASM module
-   - Files are written to a virtual filesystem
-   - Untrunc analyzes and repairs the video
-   - Progress and logs are streamed back to the UI
+## Browser requirements
 
-3. **Output**: The repaired video is:
-   - Read from the virtual filesystem
-   - Offered as a download
-   - Can be previewed in the browser
-
-## Technology Stack
-
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **Framer Motion** for animations
-- **Emscripten** for C++ to WebAssembly compilation
-- **FFmpeg** (WASM build) for video codec support
-- **Web Workers** for background processing
-- **File System Access API** for streaming large files
-
-## Browser Requirements
-
-- Modern browsers with WebAssembly support
-- SharedArrayBuffer support (requires COOP/COEP headers)
-- Recommended: Chrome/Edge for best File System Access API support
-
-## Simulation Mode
-
-If the WASM module is not built, the app runs in "simulation mode" which demonstrates the UI flow without actually repairing videos. Build the WASM module for full functionality.
+- WebAssembly and (for the repair flow) **SharedArrayBuffer**; the dev server sends COOP/COEP headers
+- **File System Access API** recommended (e.g. current Chrome/Edge) for picking files and save location
 
 ## License
 
-GPL-2.0 - Same as the original Untrunc project
+GPL-2.0, same as the Untrunc project

@@ -1,0 +1,72 @@
+/**
+ * Typography: match src/index.css (main app). Overrides starlight-theme-black Geist fonts.
+ * Same specificity as theme (:root:root) so these win after customCss load order.
+ */
+:root:root {
+  --sl-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --sl-font-mono: 'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Code', Menlo, monospace;
+}
+
+/**
+ * Force Starlight UI to achromatic grays (links, accents, asides, badges).
+ * Loaded after built-in themes via Starlight `customCss`.
+ */
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #171717;
+  --sl-color-accent: #d4d4d4;
+  --sl-color-accent-high: #fafafa;
+  --sl-color-text-accent: #e5e5e5;
+  --sl-color-bg-accent: #404040;
+
+  --sl-color-blue-low: #171717;
+  --sl-color-blue: #a3a3a3;
+  --sl-color-blue-high: #e5e5e5;
+  --sl-color-green-low: #171717;
+  --sl-color-green: #a3a3a3;
+  --sl-color-green-high: #e5e5e5;
+  --sl-color-orange-low: #171717;
+  --sl-color-orange: #a3a3a3;
+  --sl-color-orange-high: #e5e5e5;
+  --sl-color-purple-low: #171717;
+  --sl-color-purple: #a3a3a3;
+  --sl-color-purple-high: #e5e5e5;
+  --sl-color-red-low: #171717;
+  --sl-color-red: #a3a3a3;
+  --sl-color-red-high: #e5e5e5;
+
+  --sl-color-banner-bg: oklch(0.28 0 0);
+  --sl-color-banner-border: oklch(0.4 0 0);
+
+  --code-background: oklch(0.21 0 0);
+  --mark-background: oklch(0.37 0 0);
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e5e5e5;
+  --sl-color-accent: #404040;
+  --sl-color-accent-high: #171717;
+  --sl-color-text-accent: #262626;
+  --sl-color-bg-accent: #d4d4d4;
+
+  --sl-color-blue-low: #e5e5e5;
+  --sl-color-blue: #525252;
+  --sl-color-blue-high: #171717;
+  --sl-color-green-low: #e5e5e5;
+  --sl-color-green: #525252;
+  --sl-color-green-high: #171717;
+  --sl-color-orange-low: #e5e5e5;
+  --sl-color-orange: #525252;
+  --sl-color-orange-high: #171717;
+  --sl-color-purple-low: #e5e5e5;
+  --sl-color-purple: #525252;
+  --sl-color-purple-high: #171717;
+  --sl-color-red-low: #e5e5e5;
+  --sl-color-red: #525252;
+  --sl-color-red-high: #171717;
+
+  --sl-color-banner-bg: oklch(0.97 0 0);
+  --sl-color-banner-border: oklch(0.85 0 0);
+
+  --code-background: oklch(0.97 0 0);
+  --mark-background: oklch(0.92 0 0);
+}

@@ -118,9 +118,9 @@ export function useUntrunc() {
       isComplete: false,
     }))
 
-    addLog(`Info: Starting repair...`)
+    addLog(`Info: Starting…`)
     addLog(`Info: Reference: ${referenceFile.name} (${formatBytes(referenceFile.size)})`)
-    addLog(`Info: Broken: ${brokenFile.name} (${formatBytes(brokenFile.size)})`)
+    addLog(`Info: .rsv: ${brokenFile.name} (${formatBytes(brokenFile.size)})`)
     addLog(`Info: Output: ${outputHandle.name}`)
     
     outputHandleRef.current = outputHandle

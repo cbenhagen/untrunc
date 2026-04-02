@@ -7,3 +7,6 @@ ffmpeg-*
 libav-*
 build
 *.pro.user
+
+# macOS
+.DS_Store

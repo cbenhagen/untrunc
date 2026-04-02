@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="526.352px" height="74.857px" viewBox="34.217 384.134 526.352 74.857"
+	 enable-background="new 34.217 384.134 526.352 74.857" xml:space="preserve">
+<g>
+	<path fill="#00A892" d="M70.905,438.115"/>
+	<polygon fill="#FFFFFF" points="72.264,452.197 72.264,400.192 80.046,408.469 80.046,452.197 	"/>
+	<polygon fill="#E50C7E" points="44.1,458.991 48.423,452.197 80.046,452.197 80.046,458.991 	"/>
+	<polygon fill="#5EB236" points="41.999,386.357 41.999,393.398 65.84,393.398 59.046,386.357 	"/>
+	<polygon fill="#FFE00A" points="59.046,386.357 80.046,408.469 80.046,396.98 69.793,386.357 	"/>
+	<polygon fill="#00B5DF" points="34.217,386.357 34.217,448.615 41.999,445.527 41.999,386.357 	"/>
+	<polygon fill="#941E81" points="34.217,448.615 44.1,458.991 48.423,452.197 41.999,445.527 	"/>
+</g>
+<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="73.5134" y1="740.4414" x2="114.9138" y2="740.4414" gradientTransform="matrix(1.2353 0 0 -1.2353 0.1067 1337.3248)">
+	<stop  offset="0" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2456" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2751" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.3692" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.4788" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.5231" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.6151" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.9005" style="stop-color:#FFFFFF"/>
+</linearGradient>
+<path fill="url(#SVGID_1_)" d="M142.057,393.398H120.44v65.593h-7.906v-65.593H90.916v-7.041h44.347L142.057,393.398z"/>
+<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="122.4138" y1="740.4414" x2="163.8137" y2="740.4414" gradientTransform="matrix(1.2353 0 0 -1.2353 0.1067 1337.3248)">
+	<stop  offset="0" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2456" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2751" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.3692" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.4788" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.5231" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.6151" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.9005" style="stop-color:#FFFFFF"/>
+</linearGradient>
+<path fill="url(#SVGID_2_)" d="M202.462,393.398h-21.617v65.593h-7.906v-65.593h-21.617v-7.041h44.347L202.462,393.398z"/>
+<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="325.4641" y1="740.4414" x2="366.8635" y2="740.4414" gradientTransform="matrix(1.2353 0 0 -1.2353 0.1067 1337.3248)">
+	<stop  offset="0" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2456" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.2751" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.3692" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.4788" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.5231" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.6151" style="stop-color:#FFFFFF"/>
+	<stop  offset="0.9005" style="stop-color:#FFFFFF"/>
+</linearGradient>
+<path fill="url(#SVGID_3_)" d="M453.223,393.398h-21.617v65.593H423.7v-65.593h-21.618v-7.041h44.347L453.223,393.398z"/>
+<path fill="#FFFFFF" d="M223.215,458.868l-9.883-10.376v-62.135h35.699l10.253,10.623v61.888H223.215z M251.379,452.197v-52.005
+	l-6.794-6.794h-23.347v52.005l6.423,6.794H251.379z"/>
+<path fill="#FFFFFF" d="M284.732,397.722v61.146h-7.906v-72.511h7.412l19.641,19.888l20.135-19.888h7.412v72.511h-7.906v-61.146
+	l-17.417,17.047h-4.694L284.732,397.722z"/>
+<path fill="#FFFFFF" d="M386.271,423.416H356.13v35.575h-7.782v-72.634h35.699l10.13,10.623v61.888h-7.906V423.416z
+	 M386.271,416.004v-15.812l-6.794-6.794H356.13v22.605H386.271z"/>
+<path fill="#FFFFFF" d="M502.387,452.074v6.794h-38.046v-6.794h15.07v-58.799h-12.848v-6.917h33.724v6.917h-12.971v58.675h15.07
+	V452.074z"/>
+<polygon fill="#FFFFFF" points="529.07,452.197 522.646,445.403 522.646,393.398 545.992,393.398 549.574,396.857 560.569,396.857 
+	550.316,386.357 514.74,386.357 514.74,448.615 524.622,458.868 560.569,458.868 560.569,452.197 "/>
+<path fill="none" d="M548.586,384.134"/>
+</svg>

@@ -63,8 +63,8 @@ function App() {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const handle = await (window as any).showSaveFilePicker({
-        suggestedName: brokenFile.name.replace(/\.[^.]+$/, '') + '_fixed.mp4',
-        types: [{ description: 'MP4 Video', accept: { 'video/mp4': ['.mp4'] } }]
+        suggestedName: brokenFile.name.replace(/\.[^.]+$/, '') + '_recovered.mp4',
+        types: [{ description: 'Recovered video', accept: { 'video/mp4': ['.mp4'] } }]
       })
       setOutputHandle(handle)
       setOutputName(handle.name)
@@ -98,10 +98,12 @@ function App() {
   const selectFile = async (type: 'reference' | 'broken') => {
     if ('showOpenFilePicker' in window) {
       try {
+        const types =
+          type === 'reference'
+            ? [{ description: 'Reference recording', accept: { 'video/*': ['.mp4', '.mov', '.m4v', '.MP4', '.MOV', '.M4V'] } }]
+            : [{ description: 'RSV file', accept: { '*/*': ['.rsv', '.RSV'] } }]
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const [handle] = await (window as any).showOpenFilePicker({
-          types: [{ description: 'Video files', accept: { 'video/*': ['.mp4', '.mov', '.m4v', '.3gp', '.rsv', '.RSV'] } }]
-        })
+        const [handle] = await (window as any).showOpenFilePicker({ types })
         const file = await handle.getFile()
         if (type === 'reference') handleReferenceFile(file, handle)
         else handleBrokenFile(file, handle)
@@ -153,14 +155,19 @@ function App() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <div className="logo">
+          <a href="/" className="logo logo-link">
             <TerminalIcon />
-            <span className="logo-text">untrunc</span>
-            <span className="badge">web</span>
-          </div>
-          <a href="https://github.com/anthwlock/untrunc" target="_blank" rel="noopener" className="github-link">
-            <GithubIcon />
+            <span className="logo-text">
+              <span className="logo-rest">rsv</span>
+              <span className="logo-accent">.repair</span>
+            </span>
           </a>
+          <div className="header-actions">
+            <nav className="header-nav" aria-label="Site">
+              <a href="/docs/">Docs</a>
+              <a href="/support/">Support</a>
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -173,19 +180,18 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h1 className="title">Repair corrupted video files</h1>
+            <h1 className="title">Fix Sony .rsv files</h1>
             <p className="subtitle">
-              Fix broken MP4, MOV, M4V, and RSV files directly in your browser.
-              <br />
-              No uploads. No servers. Everything runs locally on your machine.
+              Recording cut short? Your footage is probably still there.
             </p>
+            <p className="privacy-note">Runs entirely in your browser&ensp;·&ensp;nothing is uploaded</p>
           </motion.div>
 
           {/* WASM Status */}
           {wasmStatus === 'loading' && (
             <div className="status-bar">
               <LoadingSpinner />
-              <span className="mono">Loading WebAssembly module...</span>
+              <span className="mono">Getting ready…</span>
             </div>
           )}
           
@@ -216,7 +222,7 @@ function App() {
                   >
                     <div className="file-card-header">
                       <span className="file-card-label">01</span>
-                      <span className="file-card-title">Reference Video</span>
+                      <span className="file-card-title">Working video</span>
                     </div>
                     {referenceFile ? (
                       <div className="file-card-info">
@@ -225,7 +231,7 @@ function App() {
                       </div>
                     ) : (
                       <div className="file-card-empty">
-                        <span>A working video from the same camera</span>
+                        <span>Any file from the same Sony camera that already plays</span>
                         <span className="file-card-hint">{dragOver === 'reference' ? 'Drop file here' : 'Drag & drop or click to browse'}</span>
                       </div>
                     )}
@@ -241,7 +247,7 @@ function App() {
                   >
                     <div className="file-card-header">
                       <span className="file-card-label">02</span>
-                      <span className="file-card-title">Broken Video</span>
+                      <span className="file-card-title">Your .rsv file</span>
                     </div>
                     {brokenFile ? (
                       <div className="file-card-info">
@@ -250,7 +256,7 @@ function App() {
                       </div>
                     ) : (
                       <div className="file-card-empty">
-                        <span>The corrupted file to repair</span>
+                        <span>The .rsv that won&apos;t play</span>
                         <span className="file-card-hint">{dragOver === 'broken' ? 'Drop file here' : 'Drag & drop or click to browse'}</span>
                       </div>
                     )}
@@ -264,7 +270,7 @@ function App() {
                     >
                       <div className="file-card-header">
                         <span className="file-card-label">03</span>
-                        <span className="file-card-title">Save Location</span>
+                        <span className="file-card-title">Save as</span>
                       </div>
                       {outputName ? (
                         <div className="file-card-info">
@@ -273,7 +279,7 @@ function App() {
                         </div>
                       ) : (
                         <div className="file-card-empty">
-                          <span>Choose where to save the repaired file</span>
+                          <span>Choose where to save your fixed video</span>
                           <span className="file-card-hint">Click to choose location</span>
                         </div>
                       )}
@@ -307,10 +313,10 @@ function App() {
                           {isLoading ? (
                             <>
                               <LoadingSpinner />
-                              Processing...
+                              Working…
                             </>
                           ) : (
-                            <>Start Repair</>
+                            <>Fix video</>
                           )}
                         </button>
                       </div>
@@ -352,16 +358,16 @@ function App() {
                 <div className="progress-card">
                   <div className="progress-header">
                     <span className="progress-title mono">
-                      {appState === 'complete' && isComplete ? '✓ Repair Complete' : 
-                       appState === 'error' ? '✗ Error' : 
-                       isFinalizing ? 'Finalizing file...' :
-                       phase === 'mounting' ? 'Mounting files...' :
-                       phase === 'parsing' ? 'Parsing reference video...' :
-                       phase === 'repairing' ? 'Repairing video...' :
-                       'Starting...'}
+                      {appState === 'complete' && isComplete ? '✓ Done' : 
+                       appState === 'error' ? '✗ Something went wrong' : 
+                       isFinalizing ? 'Finishing up…' :
+                       phase === 'mounting' ? 'Preparing…' :
+                       phase === 'parsing' ? 'Reading your working video…' :
+                       phase === 'repairing' ? 'Building your video…' :
+                       'Starting…'}
                     </span>
                     <span className="progress-percent mono">
-                      {isFinalizing ? '—' : `${progress}%`}
+                      {isFinalizing ? '…' : `${progress}%`}
                     </span>
                   </div>
                   
@@ -374,7 +380,7 @@ function App() {
 
                   {isFinalizing && (
                     <div className="progress-finalizing mono">
-                      Waiting for filesystem to flush data to disk... (this can take minutes for large files)
+                      Saving to disk. Large files can take a few minutes
                     </div>
                   )}
 
@@ -384,9 +390,9 @@ function App() {
 
                   {appState === 'complete' && isComplete && (
                     <div className="progress-success">
-                      <span className="mono">File saved to disk successfully</span>
+                      <span className="mono">Saved. You can open it like any other video.</span>
                       <button className="btn btn-secondary" onClick={handleReset}>
-                        Repair Another
+                        Fix another file
                       </button>
                     </div>
                   )}
@@ -395,7 +401,7 @@ function App() {
             )}
           </AnimatePresence>
 
-          {/* Repaired Video Preview - only show after file is verified complete */}
+          {/* Recovered video preview - only show after file is verified complete */}
           <AnimatePresence>
             {appState === 'complete' && isComplete && outputFile && (
               <motion.div 
@@ -405,11 +411,7 @@ function App() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                <VideoPlayer
-                  file={outputFile}
-                  label="Repaired Video"
-                  accentColor="cyan"
-                />
+                <VideoPlayer file={outputFile} label="Your video" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -439,15 +441,26 @@ function App() {
               </AnimatePresence>
             </div>
           )}
+
+          <a className="nudge" href="/docs/what-is-rsv/#check-your-camera-for-recovery-options">
+            <span className="nudge-label">Still have the card?</span>
+            <span className="nudge-action">Try in-camera recovery first&nbsp;›</span>
+          </a>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="footer">
-        <span className="footer-text">
-          Powered by <a href="https://github.com/anthwlock/untrunc">Untrunc</a> and <a href="https://ffmpeg.org/">FFmpeg</a> • 
-          Runs entirely in your browser using WebAssembly
-        </span>
+        <div className="footer-inner">
+          <a
+            href="https://ottomatic.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-ottomatic"
+          >
+            <img src="/ottomatic-logo.svg" alt="OTTOMATIC" className="footer-ottomatic-logo" />
+          </a>
+        </div>
       </footer>
 
       <style>{`
@@ -473,6 +486,41 @@ function App() {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          gap: var(--space-4);
+        }
+
+        .logo-link {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .logo-link:hover .logo-rest,
+        .logo-link:hover .logo-accent {
+          opacity: 0.9;
+        }
+
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+        }
+
+        .header-nav {
+          display: flex;
+          align-items: center;
+          gap: var(--space-5);
+        }
+
+        .header-nav a {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-secondary);
+          text-decoration: none;
+          transition: color var(--transition-fast);
+        }
+
+        .header-nav a:hover {
+          color: var(--text-primary);
         }
 
         .logo {
@@ -494,32 +542,12 @@ function App() {
           letter-spacing: -0.02em;
         }
 
-        .badge {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          padding: 2px 6px;
-          background: var(--bg-elevated);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          color: var(--text-muted);
-          text-transform: uppercase;
-        }
-
-        .github-link {
-          display: flex;
-          padding: var(--space-2);
-          color: var(--text-muted);
-          transition: color var(--transition-fast);
-        }
-
-        .github-link:hover {
+        .logo-rest {
           color: var(--text-primary);
-          opacity: 1;
         }
 
-        .github-link svg {
-          width: 20px;
-          height: 20px;
+        .logo-accent {
+          color: var(--text-secondary);
         }
 
         /* Main */
@@ -553,6 +581,46 @@ function App() {
           font-size: 15px;
           color: var(--text-secondary);
           line-height: 1.6;
+        }
+
+        .privacy-note {
+          font-size: 12px;
+          color: var(--text-muted);
+          margin-top: var(--space-2);
+          letter-spacing: 0.01em;
+        }
+
+        /* Subtle bottom nudge */
+        .nudge {
+          display: flex;
+          align-items: baseline;
+          justify-content: center;
+          gap: var(--space-3);
+          padding: var(--space-4) var(--space-5);
+          margin-top: var(--space-8);
+          border-top: 1px solid var(--border);
+          text-decoration: none;
+          transition: border-color var(--transition-fast);
+        }
+
+        .nudge:hover {
+          border-color: var(--border-hover);
+        }
+
+        .nudge-label {
+          font-size: 13px;
+          color: var(--text-muted);
+        }
+
+        .nudge-action {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-secondary);
+          transition: color var(--transition-fast);
+        }
+
+        .nudge:hover .nudge-action {
+          color: var(--text-primary);
         }
 
         /* Status */
@@ -825,7 +893,7 @@ function App() {
           padding-top: var(--space-3);
           border-top: 1px solid var(--border);
           font-size: 13px;
-          color: var(--success);
+          color: var(--text-secondary);
         }
 
         /* Preview Section */
@@ -875,18 +943,32 @@ function App() {
 
         /* Footer */
         .footer {
-          padding: var(--space-6);
+          margin-top: auto;
           border-top: 1px solid var(--border);
-          text-align: center;
+          padding: 2rem var(--space-6);
         }
 
-        .footer-text {
-          font-size: 13px;
-          color: var(--text-muted);
+        .footer-inner {
+          max-width: 1000px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: center;
+          padding: 0 var(--space-6);
         }
 
-        .footer a {
-          color: var(--text-secondary);
+        .footer-ottomatic {
+          opacity: 0.6;
+          transition: opacity 0.15s ease;
+        }
+
+        .footer-ottomatic:hover {
+          opacity: 1;
+        }
+
+        .footer-ottomatic-logo {
+          height: 1.25rem;
+          width: auto;
+          display: block;
         }
       `}</style>
     </div>
@@ -899,14 +981,6 @@ function TerminalIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
-    </svg>
-  )
-}
-
-function GithubIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
     </svg>
   )
 }
@@ -946,22 +1020,16 @@ function SettingsIcon() {
 }
 
 function BackgroundPattern() {
-  // MP4 file format hex signatures and technical text
+  // Subtle background texture (Sony .rsv = interrupted recording, footage usually still present)
   const hexColumns = [
-    { left: '5%', top: '-5%', content: '00 00 00 20\n66 74 79 70\n69 73 6F 6D\n00 00 02 00\n69 73 6F 6D\n69 73 6F 32\n61 76 63 31\n6D 70 34 31\n00 00 00 08\n66 72 65 65\n00 00 00 00\n6D 64 61 74\n00 00 00 00\n00 00 00 00\n6D 6F 6F 76\n00 00 00 6C\n6D 76 68 64' },
-    { left: '92%', top: '10%', content: 'ftyp isom\nmoov mvhd\ntrak tkhd\nmdia mdhd\nhdlr vide\nminf vmhd\ndinf dref\nstbl stsd\navc1 avcC\nstts stsc\nstsz stco\nfree mdat\n00 00 00 18\n66 74 79 70\n71 74 20 20' },
-    { left: '3%', top: '55%', content: '00 01 02 03\n04 05 06 07\n08 09 0A 0B\n0C 0D 0E 0F\n10 11 12 13\n14 15 16 17\n18 19 1A 1B\n1C 1D 1E 1F\nFF D8 FF E0\n00 10 4A 46\n49 46 00 01' },
-    { left: '88%', top: '70%', content: 'NAL UNIT\nSPS PPS\nIDR FRAME\nSLICE HDR\nMACROBLOCK\nMOTION VEC\nCOEFF DATA\nCABAC BITS\nPOC CNT\nREF IDX\nQP DELTA' },
+    { left: '5%', top: '-5%', content: 'Sony\n.rsv\ninterrupted\nrecording\npower loss\ncard removed\nfootage\nstill\nthere' },
+    { left: '92%', top: '10%', content: 'rsv.repair\nsame camera\nworking clip\n+\n.rsv file\n=\nplayable video' },
+    { left: '3%', top: '55%', content: '00 01 02 03\n04 05 06 07\n08 09 0A 0B\n0C 0D 0E 0F\n10 11 12 13\n14 15 16 17\n18 19 1A 1B\n1C 1D 1E 1F' },
+    { left: '88%', top: '70%', content: 'private\nlocal only\nno upload\nbrowser\nyour computer\nyour files' },
   ]
 
   return (
     <>
-      {/* Large centered watermark */}
-      <div className="bg-watermark" aria-hidden="true">
-        <div className="bg-watermark-text">UNTRUNC</div>
-        <div className="bg-watermark-sub">66 74 79 70 • MP4 • MOV • M4V</div>
-      </div>
-      
       {/* Hex columns */}
       <div className="bg-hex-pattern" aria-hidden="true">
         {hexColumns.map((col, i) => (

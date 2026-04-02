@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 interface VideoPlayerProps {
   file: File | Blob | null
   label: string
-  accentColor?: 'cyan' | 'amber'
 }
 
 export default function VideoPlayer({ file, label }: VideoPlayerProps) {

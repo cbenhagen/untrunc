@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Align marketing pages (support, nav) with the main tool: true black, minimal gray, white CTAs */
+@layer base {
+  :root {
+    /* Match src/index.css (main app) for shared header / logo */
+    --bg-primary: #000000;
+    --border-rsv: #1f1f1f;
+    --text-primary: #ededed;
+    --text-secondary: #a1a1a1;
+    --text-muted: #666666;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Code', Menlo, monospace;
+    --transition-fast: 150ms ease;
+
+    --background: 0 0% 0%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 93%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 93%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 93%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 100%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Main app header (App.tsx), reused on marketing pages via SiteNav */
+@layer components {
+  .rsv-site-header {
+    border-bottom: 1px solid var(--border-rsv);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .rsv-site-header .header-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .rsv-site-header .logo-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .rsv-site-header .logo-link:hover .logo-rest,
+  .rsv-site-header .logo-link:hover .logo-accent {
+    opacity: 0.9;
+  }
+
+  .rsv-site-header .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .rsv-site-header .header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .rsv-site-header .header-nav a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .rsv-site-header .header-nav a:hover {
+    color: var(--text-primary);
+  }
+
+  .rsv-site-header .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .rsv-site-header .logo svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-primary);
+  }
+
+  .rsv-site-header .logo-text {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .rsv-site-header .logo-rest {
+    color: var(--text-primary);
+  }
+
+  .rsv-site-header .logo-accent {
+    color: var(--text-secondary);
+  }
+}
