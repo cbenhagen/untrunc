@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import starlight from '@astrojs/starlight';
 import starlightThemeBlack from 'starlight-theme-black';
+import { SITE_DESCRIPTION } from './src/site-meta';
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,7 +40,7 @@ export default defineConfig({
       customCss: ['./src/styles/starlight-grayscale.css'],
       disable404Route: true,
       title: 'rsv.repair',
-      description: 'Fix Sony .rsv files in your browser.',
+      description: SITE_DESCRIPTION,
       logo: {
         src: './src/assets/logo.svg',
         alt: 'rsv.repair',

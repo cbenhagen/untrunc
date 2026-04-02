@@ -56,7 +56,7 @@ web/
 │   ├── App.tsx
 │   └── index.css
 ├── public/              # Static assets + WASM after build
-├── astro.config.mjs
+├── astro.config.ts
 └── package.json
 ```
 

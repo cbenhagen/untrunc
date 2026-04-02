@@ -186,7 +186,7 @@ function App() {
             <p className="subtitle">
               Recording cut short? Your footage is probably still there.
             </p>
-            <p className="privacy-note">Runs entirely in your browser&ensp;·&ensp;nothing is uploaded</p>
+            <p className="privacy-note">Free&ensp;·&ensp;runs entirely in your browser&ensp;·&ensp;nothing is uploaded</p>
           </motion.div>
 
           {/* WASM Status */}
