@@ -191,7 +191,7 @@ async function loadModule(): Promise<UntruncModule> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createUntruncModule = (self as any).createUntruncModule
   if (!createUntruncModule) {
-    throw new Error('WASM module not found. Run: cd web/src/wasm && ./build.sh')
+    throw new Error('WASM module not found. From web/: bun run build:wasm')
   }
   
   const mod = await createUntruncModule({
@@ -222,10 +222,11 @@ async function repair(
   // Signal array: [0] = status (0=idle, 1=writing, 2=done, -1=error)
   const signalArray = new Int32Array(signalBuffer)
 
-  // This function is called from C++ via EM_JS - it BLOCKS using Atomics
+  // Called from C++ via EM_JS (wasmWriteSync). Not Emscripten Asyncify:
+  // we block here with Atomics until the main thread completes writable.write().
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(mod as any).writeSync = (data: Uint8Array): void => {
-    // Send data to main thread for async write
+    // Post chunk to main thread; it awaits writable.write() then notifies us
     // Transfer the underlying buffer for efficiency (zero-copy)
     const copy = new Uint8Array(data)  // Must copy since data is a view into WASM memory
     
@@ -239,8 +240,7 @@ async function repair(
       size: copy.byteLength 
     }, [copy.buffer])
     
-    // BLOCK until main thread signals completion
-    // This is the key - we wait here until the async write finishes
+    // BLOCK until main thread signals completion (after its writable.write Promise)
     while (true) {
       const result = Atomics.wait(signalArray, 0, 1, 30000) // 30s timeout
       const status = Atomics.load(signalArray, 0)

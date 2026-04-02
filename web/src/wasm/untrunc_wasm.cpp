@@ -1,12 +1,14 @@
 /*
  * Untrunc WASM Bindings
- * 
- * This file provides Emscripten bindings to expose untrunc functionality
- * to JavaScript via WebAssembly.
- * 
- * Uses Asyncify to enable true async writes - WASM execution pauses
- * while waiting for disk I/O to complete. This provides backpressure
- * and prevents memory buildup for large files.
+ *
+ * Emscripten embind exposes untrunc to JS. The link step does *not* use
+ * Emscripten Asyncify (-s ASYNCIFY); streaming output uses EM_JS instead.
+ *
+ * When streaming writes are enabled, wasmWriteSync() calls into JS
+ * (Module.writeSync). The worker implements writeSync by posting chunks to
+ * the main thread and blocking with Atomics.wait() until the main thread
+ * finishes FileSystemWritableFileStream.write(), giving real backpressure
+ * without unwinding the WASM stack.
  */
 
 #include <emscripten/bind.h>

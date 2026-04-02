@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "deploy": "bun run build",
     "preview": "astro preview",
     "astro": "astro",
     "build:wasm": "cd src/wasm && ./build.sh",
