@@ -43,6 +43,12 @@ export default class ErrorBoundary extends Component<Props, State> {
             <p className="error-message">
               {this.state.error?.message || 'An unexpected error occurred'}
             </p>
+            {this.state.error?.stack && (
+              <details className="error-details">
+                <summary>Details</summary>
+                <pre className="error-stack">{this.state.error.stack}</pre>
+              </details>
+            )}
             <button className="btn btn-primary" onClick={this.handleReset}>
               Try Again
             </button>
@@ -85,6 +91,29 @@ export default class ErrorBoundary extends Component<Props, State> {
               background: var(--bg-tertiary);
               border-radius: var(--radius-md);
               word-break: break-word;
+            }
+
+            .error-details {
+              width: 100%;
+              text-align: left;
+            }
+
+            .error-details summary {
+              cursor: pointer;
+              font-size: 0.8rem;
+              color: var(--text-muted);
+            }
+
+            .error-stack {
+              font-size: 0.75rem;
+              color: var(--text-muted);
+              background: var(--bg-tertiary);
+              border-radius: var(--radius-md);
+              padding: var(--space-3);
+              overflow-x: auto;
+              max-height: 200px;
+              white-space: pre-wrap;
+              word-break: break-all;
             }
           `}</style>
         </div>

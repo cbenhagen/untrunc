@@ -39,6 +39,7 @@ function App() {
     isLoading,
     wasmStatus,
     wasmError,
+    browserWarning,
     startRepair,
     reset,
   } = useUntrunc()
@@ -81,7 +82,8 @@ function App() {
       const freshBrokenFile = brokenHandle ? await brokenHandle.getFile() : brokenFile
       await startRepair(freshRefFile, freshBrokenFile, settings, outputHandle)
       setAppState('complete')
-    } catch {
+    } catch (err) {
+      console.error('Repair failed:', err)
       setAppState('error')
     }
   }, [referenceFile, brokenFile, referenceHandle, brokenHandle, outputHandle, settings, startRepair])
@@ -198,6 +200,12 @@ function App() {
           {wasmStatus === 'error' && (
             <div className="status-bar error">
               <span className="mono">Error: {wasmError}</span>
+            </div>
+          )}
+          
+          {browserWarning && (
+            <div className="status-bar error">
+              <span className="mono">{browserWarning}</span>
             </div>
           )}
 

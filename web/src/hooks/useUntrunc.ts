@@ -22,6 +22,7 @@ interface UntruncState {
   isComplete: boolean
   wasmStatus: 'loading' | 'ready' | 'error'
   wasmError: string | null
+  browserWarning: string | null
 }
 
 type RepairPhase = 'mounting' | 'parsing' | 'repairing' | 'finalizing' | null
@@ -41,19 +42,30 @@ let sharedWorker: Worker | null = null
 let wasmLoadPromise: Promise<void> | null = null
 
 export function useUntrunc() {
-  const [state, setState] = useState<UntruncState>({
-    progress: 0,
-    phase: null,
-    logs: [],
-    outputFileName: '',
-    outputSize: 0,
-    outputFile: null,
-    error: null,
-    isLoading: false,
-    isFinalizing: false,
-    isComplete: false,
-    wasmStatus: 'loading',
-    wasmError: null,
+  const [state, setState] = useState<UntruncState>(() => {
+    let browserWarning: string | null = null
+    if (typeof window !== 'undefined') {
+      if (typeof SharedArrayBuffer === 'undefined') {
+        browserWarning = 'This page requires cross-origin isolation headers (COOP/COEP) to work. SharedArrayBuffer is not available.'
+      } else if (!('showOpenFilePicker' in window)) {
+        browserWarning = 'Your browser does not support the File System Access API. Please use Chrome or Edge.'
+      }
+    }
+    return {
+      progress: 0,
+      phase: null,
+      logs: [],
+      outputFileName: '',
+      outputSize: 0,
+      outputFile: null,
+      error: null,
+      isLoading: false,
+      isFinalizing: false,
+      isComplete: false,
+      wasmStatus: 'loading',
+      wasmError: null,
+      browserWarning,
+    }
   })
 
   const workerRef = useRef<Worker | null>(null)
@@ -99,9 +111,10 @@ export function useUntrunc() {
   ) => {
     if (wasmLoadPromise) await wasmLoadPromise
 
-    // Check SharedArrayBuffer support (required for cross-origin isolation)
     if (typeof SharedArrayBuffer === 'undefined') {
-      throw new Error('SharedArrayBuffer not available. The page must be served with COOP/COEP headers.')
+      const msg = 'SharedArrayBuffer not available. The page must be served with Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers.'
+      setState(prev => ({ ...prev, error: msg }))
+      throw new Error(msg)
     }
 
     setState(prev => ({
