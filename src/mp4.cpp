@@ -180,8 +180,10 @@ void Mp4::parseTracksOk() {
 
 		assert(track.chunks_.size());
 		if (!g_ignore_out_of_bound_chunks) {
-			assert(track.chunks_.front().off_ >= mdats.front()->contentStart());
-			assert(track.chunks_.back().off_ < mdats.back()->start_ + mdats.back()->length_);
+			if (track.chunks_.front().off_ < mdats.front()->contentStart() ||
+			    track.chunks_.back().off_ >= mdats.back()->start_ + mdats.back()->length_) {
+				throw string(kTruncatedReferenceMdatError);
+			}
 		}
 
 		max_part_size_ = max(max_part_size_, track.ss_stats_.maxAllowedPktSz());

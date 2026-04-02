@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <string>
 #include <map>
 #include <vector>
 #include <sstream>
@@ -41,6 +42,12 @@ extern bool g_interactive, g_muted, g_ignore_unknown, g_stretch_video,
     g_no_rsv_mode;
 extern int64_t g_range_start, g_range_end;
 extern std::string g_dst_path;
+
+/** Thrown from Mp4::parseTracksOk when sample offsets fall outside mdat (e.g. truncated reference). */
+extern const char kTruncatedReferenceMdatError[];
+inline bool isTruncatedReferenceMdatError(const std::string& e) {
+	return e.rfind("TRUNCATED_REFERENCE_MDAT:", 0) == 0;
+}
 
 extern const bool has_sawb_bug;
 extern std::string g_version_str;

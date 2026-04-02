@@ -67,6 +67,10 @@ int64_t g_range_start = kRangeUnset;
 int64_t g_range_end = kRangeUnset;
 std::string g_dst_path;
 
+const char kTruncatedReferenceMdatError[] =
+	"TRUNCATED_REFERENCE_MDAT: sample chunk offsets extend past the mdat box (truncated reference file?). "
+	"Use -dcc on the CLI; the web app retries automatically.";
+
 std::stringstream noise_buffer;
 std::streambuf *orig_cout, *orig_cerr;
 void enableNoiseBuffer();

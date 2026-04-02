@@ -271,6 +271,66 @@ struct RepairResult {
     std::string outputPath;
 };
 
+static RepairResult runRepairOnce(
+    const std::string& refPath,
+    const std::string& brokenPath,
+    const std::string& outputDir
+) {
+    RepairResult result;
+    result.success = false;
+
+    Mp4 mp4;
+    g_mp4 = &mp4;
+    g_dst_path = outputDir;
+    g_rsv_mode = false;
+
+    logg(I, "parsing reference file: ", refPath, "\n");
+    mp4.parseOk(refPath);
+
+    std::string ext = brokenPath.substr(brokenPath.find_last_of('.') + 1);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    if (ext == "rsv") {
+        g_rsv_mode = true;
+    }
+
+    logg(I, "repairing: ", brokenPath, "\n");
+    mp4.repair(brokenPath);
+
+    std::string baseName = brokenPath.substr(brokenPath.find_last_of('/') + 1);
+    result.outputPath = outputDir + "/" + baseName + "_fixed.MP4";
+    result.success = true;
+    return result;
+}
+
+static bool repairTryApply(
+    const std::string& refPath,
+    const std::string& brokenPath,
+    const std::string& outputDir,
+    const RepairSettings& settings,
+    bool useDcc,
+    RepairResult& out
+) {
+    try {
+        applySettings(settings);
+        g_ignore_out_of_bound_chunks = useDcc;
+        out = runRepairOnce(refPath, brokenPath, outputDir);
+        return true;
+    } catch (const std::exception& e) {
+        out.success = false;
+        out.error = e.what();
+    } catch (const std::string& e) {
+        out.success = false;
+        out.error = e;
+    } catch (const char* e) {
+        out.success = false;
+        out.error = e;
+    } catch (...) {
+        out.success = false;
+        out.error = "Unknown error occurred";
+    }
+    return false;
+}
+
 RepairResult repair(
     const std::string& refPath,
     const std::string& brokenPath,
@@ -279,49 +339,15 @@ RepairResult repair(
 ) {
     RepairResult result;
     result.success = false;
-    
-    try {
-        applySettings(settings);
-        
-        Mp4 mp4;
-        g_mp4 = &mp4;
-        
-        // Set output directory (must be writable, e.g., MEMFS)
-        g_dst_path = outputDir;
-        
-        // Parse reference file
-        logg(I, "parsing reference file: ", refPath, "\n");
-        mp4.parseOk(refPath);
-        
-        // Check if file is RSV (Sony Recording in progress Video)
-        std::string ext = brokenPath.substr(brokenPath.find_last_of('.') + 1);
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        if (ext == "rsv") {
-            g_rsv_mode = true;
+
+    if (!repairTryApply(refPath, brokenPath, outputDir, settings, false, result)) {
+        if (isTruncatedReferenceMdatError(result.error)) {
+            logg(W, "Reference file may be truncated (chunk offsets extend past mdat). Retrying with chunk-in-mdat check disabled (-dcc).\n");
+            repairTryApply(refPath, brokenPath, outputDir, settings, true, result);
         }
-        
-        // Repair broken file
-        logg(I, "repairing: ", brokenPath, "\n");
-        mp4.repair(brokenPath);
-        
-        // Determine actual output path
-        std::string baseName = brokenPath.substr(brokenPath.find_last_of('/') + 1);
-        result.outputPath = outputDir + "/" + baseName + "_fixed.MP4";
-        result.success = true;
-        
-    } catch (const std::exception& e) {
-        result.error = e.what();
-    } catch (const std::string& e) {
-        result.error = e;
-    } catch (const char* e) {
-        result.error = e;
-    } catch (...) {
-        result.error = "Unknown error occurred";
     }
-    
-    // Clear output path
+
     g_dst_path.clear();
-    
     return result;
 }
 
